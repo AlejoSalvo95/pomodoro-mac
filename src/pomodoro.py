@@ -2,7 +2,7 @@ from PyQt5.QtCore import QTimer, Qt, QUrl
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtGui import QFont
-
+import os
 import sys
 
 class SoundPlayer(QWidget):
@@ -13,25 +13,24 @@ class SoundPlayer(QWidget):
         self.remainingTime = 0
 
     def initUI(self):
-        self.playButton = QPushButton('Play Sound', self)
-        self.playButton.clicked.connect(self.play_sound)
-
         self.notifButton = QPushButton('Start Pomodoro 25/5', self)
         self.notifButton.clicked.connect(lambda: self.show_notification("Pomodoro", "Time left: 00:05", 5))
 
         layout = QVBoxLayout()
-        layout.addWidget(self.playButton)
         layout.addWidget(self.notifButton)
 
         self.setLayout(layout)
         self.player = QMediaPlayer()
 
+
     def play_sound(self):
-        url = QUrl.fromLocalFile("/Users/ale/Documents/sound.wav")
+        # Construct an absolute path to the sound file
+        sound_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'sound.wav'))
+        url = QUrl.fromLocalFile(sound_file_path)
         content = QMediaContent(url)
         self.player.setMedia(content)
         self.player.play()
-
+        
     def show_notification(self, title, message, duration):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
