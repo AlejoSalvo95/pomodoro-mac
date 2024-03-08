@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QTimer, Qt, QUrl
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPalette, QColor
 import os
 import sys
 
@@ -12,6 +12,7 @@ class SoundPlayer(QWidget):
         self.notificationWindow = None
         self.countdownTimer = QTimer(self)  # Timer for countdown updates
         self.countdownTimer.timeout.connect(self.update_countdown)
+        self.phase = 1
         self.remainingTime = 0
 
     def initUI(self):
@@ -34,7 +35,7 @@ class SoundPlayer(QWidget):
     def close_notification(self):
         self.countdownTimer.stop()
         self.play_sound()
-        self.notificationWindow.close()
+        self.start_second_phase(3000)
 
     def set_label(self, message, layout):
         self.label = QLabel(f"{message}\nClosing in {self.remainingTime} seconds", self.notificationWindow)
@@ -46,6 +47,8 @@ class SoundPlayer(QWidget):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
 
+        self.phase = 1
+
         self.remainingTime = duration // 1000
         self.notificationWindow = QWidget()
         self.notificationWindow.setWindowTitle(title)
@@ -56,10 +59,25 @@ class SoundPlayer(QWidget):
         self.notificationWindow.setLayout(layout)
 
         self.notificationWindow.setGeometry(100, 100, 400, 200)
+        self.set_notification_background(self.notificationWindow, QColor('lightblue'))
         self.notificationWindow.show()
 
         self.countdownTimer.start(1000)
         QTimer.singleShot(duration, self.close_notification)
+
+    def start_second_phase(self, second_duration):
+        if self.phase == 1:
+            self.phase = 2
+            self.remainingTime = second_duration // 1000
+            self.set_notification_background(self.notificationWindow, QColor('lightcoral'))
+            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+            self.countdownTimer.start(1000)
+            QTimer.singleShot(second_duration, self.close_notification)
+
+    def set_notification_background(self, window, color):
+        palette = window.palette()
+        palette.setColor(QPalette.Window, color)
+        window.setPalette(palette)
 
     def update_countdown(self):
         if self.remainingTime > 0:
