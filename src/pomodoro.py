@@ -10,11 +10,13 @@ class SoundPlayer(QWidget):
         super().__init__()
         self.initUI()
         self.notificationWindow = None
+        self.countdownTimer = QTimer(self)  # Timer for countdown updates
+        self.countdownTimer.timeout.connect(self.update_countdown)
         self.remainingTime = 0
 
     def initUI(self):
-        self.notifButton = QPushButton('Start Pomodoro 25/5', self)
-        self.notifButton.clicked.connect(lambda: self.show_notification("Pomodoro", "Time left: 00:05", 5))
+        self.notifButton = QPushButton('Show Notification', self)
+        self.notifButton.clicked.connect(lambda: self.show_notification("Notification", "Hi", 5000))
 
         layout = QVBoxLayout()
         layout.addWidget(self.notifButton)
@@ -22,48 +24,47 @@ class SoundPlayer(QWidget):
         self.setLayout(layout)
         self.player = QMediaPlayer()
 
-
     def play_sound(self):
-        # Construct an absolute path to the sound file
         sound_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'sound.wav'))
         url = QUrl.fromLocalFile(sound_file_path)
         content = QMediaContent(url)
         self.player.setMedia(content)
         self.player.play()
-        
-    def show_notification(self, title, message, duration):
+
+    def close_notification(self):
+        self.countdownTimer.stop()
+        self.play_sound()
+        self.notificationWindow.close()
+
+    def show_notification(self, title, message, duration=5000):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
 
-        self.remainingTime = duration
-
+        self.remainingTime = duration // 1000
         self.notificationWindow = QWidget()
         self.notificationWindow.setWindowTitle(title)
         self.notificationWindow.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
-        self.timeLabel = QLabel(message, self.notificationWindow)
-        self.timeLabel.setFont(QFont('Arial', 18))
-        self.timeLabel.setAlignment(Qt.AlignCenter)
+        self.label = QLabel(f"{message}\nClosing in {self.remainingTime} seconds", self.notificationWindow)
+        self.label.setFont(QFont('Arial', 18))
+        self.label.setAlignment(Qt.AlignCenter)
 
         layout = QVBoxLayout()
-        layout.addWidget(self.timeLabel)
+        layout.addWidget(self.label)
         self.notificationWindow.setLayout(layout)
 
         self.notificationWindow.setGeometry(100, 100, 400, 200)
         self.notificationWindow.show()
 
-        self.countdownTimer = QTimer(self)
-        self.countdownTimer.timeout.connect(self.update_countdown)
         self.countdownTimer.start(1000)
+        QTimer.singleShot(duration, self.close_notification)
 
     def update_countdown(self):
-        self.remainingTime -= 1
-        minutes, seconds = divmod(self.remainingTime, 60)
-        self.timeLabel.setText(f"Time left: {minutes:02d}:{seconds:02d}")
-        if self.remainingTime <= 0:
+        if self.remainingTime > 0:
+            self.remainingTime -= 1
+            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+        else:
             self.countdownTimer.stop()
-            self.play_sound()
-            self.notificationWindow.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
