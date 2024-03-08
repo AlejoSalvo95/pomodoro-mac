@@ -16,7 +16,7 @@ class SoundPlayer(QWidget):
 
     def initUI(self):
         self.notifButton = QPushButton('Show Notification', self)
-        self.notifButton.clicked.connect(lambda: self.show_notification("Notification", "Hi", 5000))
+        self.notifButton.clicked.connect(lambda: self.show_notification("Work", "Hi", 5000))
 
         layout = QVBoxLayout()
         layout.addWidget(self.notifButton)
@@ -36,6 +36,12 @@ class SoundPlayer(QWidget):
         self.play_sound()
         self.notificationWindow.close()
 
+    def set_label(self, message, layout):
+        self.label = QLabel(f"{message}\nClosing in {self.remainingTime} seconds", self.notificationWindow)
+        self.label.setFont(QFont('Arial', 18))
+        self.label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.label)
+
     def show_notification(self, title, message, duration=5000):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
@@ -45,12 +51,8 @@ class SoundPlayer(QWidget):
         self.notificationWindow.setWindowTitle(title)
         self.notificationWindow.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
-        self.label = QLabel(f"{message}\nClosing in {self.remainingTime} seconds", self.notificationWindow)
-        self.label.setFont(QFont('Arial', 18))
-        self.label.setAlignment(Qt.AlignCenter)
-
         layout = QVBoxLayout()
-        layout.addWidget(self.label)
+        self.set_label(message, layout)
         self.notificationWindow.setLayout(layout)
 
         self.notificationWindow.setGeometry(100, 100, 400, 200)
