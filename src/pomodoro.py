@@ -32,10 +32,16 @@ class SoundPlayer(QWidget):
         self.player.setMedia(content)
         self.player.play()
 
-    def close_notification(self):
+    def close_first_notification(self):
         self.countdownTimer.stop()
         self.play_sound()
         self.start_second_phase(3000)
+
+
+    def close_notification(self):
+        self.countdownTimer.stop()
+        self.play_sound()
+        self.notificationWindow.close()
 
     def set_label(self, message, layout):
         self.label = QLabel(f"{message}\nClosing in {self.remainingTime} seconds", self.notificationWindow)
@@ -63,7 +69,7 @@ class SoundPlayer(QWidget):
         self.notificationWindow.show()
 
         self.countdownTimer.start(1000)
-        QTimer.singleShot(duration, self.close_notification)
+        QTimer.singleShot(duration, self.close_first_notification)
 
     def start_second_phase(self, second_duration):
         if self.phase == 1:
