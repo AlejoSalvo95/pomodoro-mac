@@ -33,15 +33,24 @@ class SoundPlayer(QWidget):
         self.player.play()
 
     def close_first_notification(self):
-        self.countdownTimer.stop()
-        self.play_sound()
+        self.stop_countdown()
         self.start_second_phase(3000)
 
+    def close_second_notification(self):
+        self.stop_countdown()
+        self.start_third_phase(3000)
 
-    def close_notification(self):
+    def close_third_notification(self):
+        self.stop_countdown()
+        self.start_fourth_phase(5000)
+
+    def close_fourth_notification(self):
+        self.stop_countdown()
+        self.notificationWindow.close()
+
+    def stop_countdown(self):
         self.countdownTimer.stop()
         self.play_sound()
-        self.notificationWindow.close()
 
     def set_label(self, message, layout):
         self.label = QLabel(f"{message}\nClosing in {self.remainingTime} seconds", self.notificationWindow)
@@ -65,20 +74,38 @@ class SoundPlayer(QWidget):
         self.notificationWindow.setLayout(layout)
 
         self.notificationWindow.setGeometry(100, 100, 400, 200)
-        self.set_notification_background(self.notificationWindow, QColor('lightblue'))
+        self.set_notification_background(self.notificationWindow, QColor('#a28abc'))
         self.notificationWindow.show()
 
         self.countdownTimer.start(1000)
         QTimer.singleShot(duration, self.close_first_notification)
 
-    def start_second_phase(self, second_duration):
+    def start_second_phase(self, duration):
         if self.phase == 1:
             self.phase = 2
-            self.remainingTime = second_duration // 1000
+            self.remainingTime = duration // 1000
             self.set_notification_background(self.notificationWindow, QColor('lightcoral'))
             self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
             self.countdownTimer.start(1000)
-            QTimer.singleShot(second_duration, self.close_notification)
+            QTimer.singleShot(duration, self.close_second_notification)
+
+    def start_third_phase(self, duration):
+        if self.phase == 2:
+            self.phase = 3
+            self.remainingTime = duration // 1000
+            self.set_notification_background(self.notificationWindow, QColor('#a28abc'))
+            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+            self.countdownTimer.start(1000)
+            QTimer.singleShot(duration, self.close_third_notification)
+
+    def start_fourth_phase(self, duration):
+        if self.phase == 3:
+            self.phase = 4
+            self.remainingTime = duration // 1000
+            self.set_notification_background(self.notificationWindow, QColor(''))
+            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+            self.countdownTimer.start(1000)
+            QTimer.singleShot(duration, self.close_fourth_notification)
 
     def set_notification_background(self, window, color):
         palette = window.palette()
