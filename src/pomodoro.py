@@ -17,7 +17,7 @@ class SoundPlayer(QWidget):
 
     def initUI(self):
         self.notifButton = QPushButton('Show Notification', self)
-        self.notifButton.clicked.connect(lambda: self.show_notification("Work", "Hi", 5000))
+        self.notifButton.clicked.connect(lambda: self.show_notification(5000))
 
         layout = QVBoxLayout()
         layout.addWidget(self.notifButton)
@@ -52,13 +52,19 @@ class SoundPlayer(QWidget):
         self.countdownTimer.stop()
         self.play_sound()
 
-    def set_label(self, message, layout):
-        self.label = QLabel(f"{message}\nClosing in {self.remainingTime} seconds", self.notificationWindow)
+    def set_title(self, layout):
+        self.title = QLabel(f"Work", self.notificationWindow)
+        self.title.setFont(QFont('Arial', 22))
+        self.title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.title)
+
+    def set_label(self, layout):
+        self.label = QLabel(f"{self.remainingTime} seconds", self.notificationWindow)
         self.label.setFont(QFont('Arial', 18))
         self.label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label)
 
-    def show_notification(self, title, message, duration=5000):
+    def show_notification(self, duration=5000):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
 
@@ -66,15 +72,16 @@ class SoundPlayer(QWidget):
 
         self.remainingTime = duration // 1000
         self.notificationWindow = QWidget()
-        self.notificationWindow.setWindowTitle(title)
+        self.notificationWindow.setWindowTitle('Pomodoro')
         self.notificationWindow.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
         layout = QVBoxLayout()
-        self.set_label(message, layout)
+        self.set_title(layout)
+        self.set_label(layout)
         self.notificationWindow.setLayout(layout)
 
         self.notificationWindow.setGeometry(100, 100, 400, 200)
-        self.set_notification_background(self.notificationWindow, QColor('#a28abc'))
+        self.set_notification_background(self.notificationWindow, QColor('#427126'))
         self.notificationWindow.show()
 
         self.countdownTimer.start(1000)
@@ -84,8 +91,9 @@ class SoundPlayer(QWidget):
         if self.phase == 1:
             self.phase = 2
             self.remainingTime = duration // 1000
-            self.set_notification_background(self.notificationWindow, QColor('lightcoral'))
-            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+            self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
+            self.label.setText(f"{self.remainingTime} seconds")
+            self.title.setText("Relax")
             self.countdownTimer.start(1000)
             QTimer.singleShot(duration, self.close_second_notification)
 
@@ -93,8 +101,9 @@ class SoundPlayer(QWidget):
         if self.phase == 2:
             self.phase = 3
             self.remainingTime = duration // 1000
-            self.set_notification_background(self.notificationWindow, QColor('#a28abc'))
-            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+            self.set_notification_background(self.notificationWindow, QColor('#5D923E'))
+            self.label.setText(f"{self.remainingTime} seconds")
+            self.title.setText("Work")
             self.countdownTimer.start(1000)
             QTimer.singleShot(duration, self.close_third_notification)
 
@@ -102,8 +111,9 @@ class SoundPlayer(QWidget):
         if self.phase == 3:
             self.phase = 4
             self.remainingTime = duration // 1000
-            self.set_notification_background(self.notificationWindow, QColor(''))
-            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+            self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
+            self.label.setText(f"{self.remainingTime} seconds")
+            self.title.setText("Relax")
             self.countdownTimer.start(1000)
             QTimer.singleShot(duration, self.close_fourth_notification)
 
@@ -115,7 +125,7 @@ class SoundPlayer(QWidget):
     def update_countdown(self):
         if self.remainingTime > 0:
             self.remainingTime -= 1
-            self.label.setText(f"Notification\nClosing in {self.remainingTime} seconds")
+            self.label.setText(f"{self.remainingTime} seconds")
         else:
             self.countdownTimer.stop()
 
