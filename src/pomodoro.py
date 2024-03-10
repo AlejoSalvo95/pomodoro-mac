@@ -16,8 +16,11 @@ class SoundPlayer(QWidget):
         self.remainingTime = 0
 
     def initUI(self):
-        self.notifButton = QPushButton('Show Notification', self)
-        self.notifButton.clicked.connect(lambda: self.show_notification(5000))
+        self.notifButton = QPushButton('Pomodoro short example', self)
+        self.notifButton.clicked.connect(lambda: self.pomodoro_short())
+
+        self.notifButton = QPushButton('Pomodoro 15/5', self)
+        self.notifButton.clicked.connect(lambda: self.pomodoro_short())
 
         layout = QVBoxLayout()
         layout.addWidget(self.notifButton)
@@ -64,7 +67,13 @@ class SoundPlayer(QWidget):
         self.label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label)
 
-    def show_notification(self, duration=5000):
+    def pomodoro_short(self, duration=5000):
+        self.pomodoro(duration)
+
+    def pomodoro_long(self, duration=10000):
+        self.pomodoro(duration)
+
+    def pomodoro(self, duration):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
 
