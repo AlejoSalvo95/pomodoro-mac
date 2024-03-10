@@ -14,16 +14,18 @@ class SoundPlayer(QWidget):
         self.countdownTimer.timeout.connect(self.update_countdown)
         self.phase = 1
         self.remainingTime = 0
+        self.long = False
 
     def initUI(self):
         self.notifButton = QPushButton('Pomodoro short example', self)
         self.notifButton.clicked.connect(lambda: self.pomodoro_short())
 
-        self.notifButton = QPushButton('Pomodoro 15/5', self)
-        self.notifButton.clicked.connect(lambda: self.pomodoro_short())
+        self.notifButton2 = QPushButton('Pomodoro 15/5', self)
+        self.notifButton2.clicked.connect(lambda: self.pomodoro_long())
 
         layout = QVBoxLayout()
         layout.addWidget(self.notifButton)
+        layout.addWidget(self.notifButton2)
 
         self.setLayout(layout)
         self.player = QMediaPlayer()
@@ -35,19 +37,19 @@ class SoundPlayer(QWidget):
         self.player.setMedia(content)
         self.player.play()
 
-    def close_first_notification(self):
+    def close_first_phase(self):
         self.stop_countdown()
-        self.start_second_phase(3000)
+        self.start_second_phase()
 
-    def close_second_notification(self):
+    def close_second_phase(self):
         self.stop_countdown()
-        self.start_third_phase(3000)
+        self.start_third_phase()
 
-    def close_third_notification(self):
+    def close_third_phase(self):
         self.stop_countdown()
-        self.start_fourth_phase(5000)
+        self.start_fourth_phase()
 
-    def close_fourth_notification(self):
+    def close_fourth_phase(self):
         self.stop_countdown()
         self.notificationWindow.close()
 
@@ -67,18 +69,23 @@ class SoundPlayer(QWidget):
         self.label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label)
 
-    def pomodoro_short(self, duration=5000):
-        self.pomodoro(duration)
+    def pomodoro_short(self):
+        self.pomodoro()
 
-    def pomodoro_long(self, duration=10000):
-        self.pomodoro(duration)
+    def pomodoro_long(self):
+        self.long = True
+        self.pomodoro()
 
-    def pomodoro(self, duration):
+    def pomodoro(self):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
 
         self.phase = 1
 
+        if self.long == True:
+            duration = 900000
+        else:
+            duration = 5000
         self.remainingTime = duration // 1000
         self.notificationWindow = QWidget()
         self.notificationWindow.setWindowTitle('Pomodoro')
@@ -94,37 +101,51 @@ class SoundPlayer(QWidget):
         self.notificationWindow.show()
 
         self.countdownTimer.start(1000)
-        QTimer.singleShot(duration, self.close_first_notification)
+        QTimer.singleShot(duration, self.close_first_phase)
 
-    def start_second_phase(self, duration):
+    def start_second_phase(self):
         if self.phase == 1:
             self.phase = 2
+            if self.long == True:
+                duration = 300000 
+            else:
+                duration = 3000
             self.remainingTime = duration // 1000
             self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
             self.label.setText(f"{self.remainingTime} seconds")
             self.title.setText("Relax")
             self.countdownTimer.start(1000)
-            QTimer.singleShot(duration, self.close_second_notification)
+            QTimer.singleShot(duration, self.close_second_phase)
 
-    def start_third_phase(self, duration):
+    def start_third_phase(self):
         if self.phase == 2:
             self.phase = 3
+
+            if self.long == True:
+                duration = 900000
+            else:
+                duration = 5000
             self.remainingTime = duration // 1000
             self.set_notification_background(self.notificationWindow, QColor('#5D923E'))
             self.label.setText(f"{self.remainingTime} seconds")
             self.title.setText("Work")
             self.countdownTimer.start(1000)
-            QTimer.singleShot(duration, self.close_third_notification)
+            QTimer.singleShot(duration, self.close_third_phase)
 
-    def start_fourth_phase(self, duration):
+    def start_fourth_phase(self):
         if self.phase == 3:
             self.phase = 4
+
+            if self.long == True:
+                duration = 300000
+            else:
+                duration = 3000
             self.remainingTime = duration // 1000
             self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
             self.label.setText(f"{self.remainingTime} seconds")
             self.title.setText("Relax")
             self.countdownTimer.start(1000)
-            QTimer.singleShot(duration, self.close_fourth_notification)
+            QTimer.singleShot(duration, self.close_fourth_phase)
 
     def set_notification_background(self, window, color):
         palette = window.palette()
