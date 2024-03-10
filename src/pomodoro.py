@@ -63,8 +63,12 @@ class SoundPlayer(QWidget):
         self.title.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.title)
 
+    def label_format(self):
+        mins, secs = divmod(self.remainingTime, 60)
+        return f"{mins:02d}:{secs:02d}"
+
     def set_label(self, layout):
-        self.label = QLabel(f"{self.remainingTime} seconds", self.notificationWindow)
+        self.label = QLabel(self.label_format(), self.notificationWindow)
         self.label.setFont(QFont('Arial', 18))
         self.label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label)
@@ -112,7 +116,7 @@ class SoundPlayer(QWidget):
                 duration = 3000
             self.remainingTime = duration // 1000
             self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
-            self.label.setText(f"{self.remainingTime} seconds")
+            self.label.setText(self.label_format())
             self.title.setText("Relax")
             self.countdownTimer.start(1000)
             QTimer.singleShot(duration, self.close_second_phase)
@@ -127,7 +131,7 @@ class SoundPlayer(QWidget):
                 duration = 5000
             self.remainingTime = duration // 1000
             self.set_notification_background(self.notificationWindow, QColor('#5D923E'))
-            self.label.setText(f"{self.remainingTime} seconds")
+            self.label.setText(self.label_format())
             self.title.setText("Work")
             self.countdownTimer.start(1000)
             QTimer.singleShot(duration, self.close_third_phase)
@@ -142,7 +146,7 @@ class SoundPlayer(QWidget):
                 duration = 3000
             self.remainingTime = duration // 1000
             self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
-            self.label.setText(f"{self.remainingTime} seconds")
+            self.label.setText(self.label_format())
             self.title.setText("Relax")
             self.countdownTimer.start(1000)
             QTimer.singleShot(duration, self.close_fourth_phase)
@@ -155,7 +159,7 @@ class SoundPlayer(QWidget):
     def update_countdown(self):
         if self.remainingTime > 0:
             self.remainingTime -= 1
-            self.label.setText(f"{self.remainingTime} seconds")
+            self.label.setText(self.label_format())
         else:
             self.countdownTimer.stop()
 
