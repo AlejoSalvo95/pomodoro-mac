@@ -30,8 +30,8 @@ class SoundPlayer(QWidget):
         self.setLayout(layout)
         self.player = QMediaPlayer()
 
-    def play_sound(self):
-        sound_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'sound.wav'))
+    def play_sound(self, sound_file_name):
+        sound_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', sound_file_name))
         url = QUrl.fromLocalFile(sound_file_path)
         content = QMediaContent(url)
         self.player.setMedia(content)
@@ -39,23 +39,35 @@ class SoundPlayer(QWidget):
 
     def close_first_phase(self):
         self.stop_countdown()
+        self.play_sound_break()
         self.start_second_phase()
 
     def close_second_phase(self):
         self.stop_countdown()
+        self.play_sound_work()
         self.start_third_phase()
 
     def close_third_phase(self):
         self.stop_countdown()
+        self.play_sound_break()
         self.start_fourth_phase()
 
     def close_fourth_phase(self):
         self.stop_countdown()
+        self.play_sound_close()
         self.notificationWindow.close()
 
     def stop_countdown(self):
         self.countdownTimer.stop()
-        self.play_sound()
+
+    def play_sound_break(self):
+        self.play_sound('break.mp3')
+
+    def play_sound_work(self):
+        self.play_sound('work.mp3')
+
+    def play_sound_close(self):
+        self.play_sound('close.mp3')
 
     def set_title(self, layout):
         self.title = QLabel(f"Work", self.notificationWindow)
