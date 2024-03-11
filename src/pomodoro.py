@@ -5,18 +5,22 @@ from PyQt5.QtGui import QFont, QPalette, QColor
 import os
 import sys
 
-class SoundPlayer(QWidget):
+class PomodoroWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
         self.notificationWindow = None
-        self.countdownTimer = QTimer(self)  # Timer for countdown updates
+        self.countdownTimer = QTimer(self)
         self.countdownTimer.timeout.connect(self.update_countdown)
         self.phase = 1
         self.remainingTime = 0
         self.long = False
 
     def initUI(self):
+        self.setWindowTitle('Pomodoro Timer')
+        self.resize(300, 100)
+        self.move(50, self.get_window_height() - 350)
+
         self.notifButton = QPushButton('Pomodoro short example', self)
         self.notifButton.clicked.connect(lambda: self.pomodoro_short())
 
@@ -92,6 +96,11 @@ class SoundPlayer(QWidget):
         self.long = True
         self.pomodoro()
 
+    def get_window_height(self):
+        screen = QApplication.desktop().screenGeometry()
+        y = screen.height()
+        return y
+
     def pomodoro(self):
         if self.notificationWindow is not None:
             self.notificationWindow.close()
@@ -105,14 +114,19 @@ class SoundPlayer(QWidget):
         self.remainingTime = duration // 1000
         self.notificationWindow = QWidget()
         self.notificationWindow.setWindowTitle('Pomodoro')
-        self.notificationWindow.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.notificationWindow.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
         layout = QVBoxLayout()
         self.set_title(layout)
         self.set_label(layout)
         self.notificationWindow.setLayout(layout)
 
-        self.notificationWindow.setGeometry(100, 100, 400, 200)
+        windowHeight = 150
+        windowWidth = 250
+        x = 50
+        y = self.get_window_height() - windowHeight - 50
+
+        self.notificationWindow.setGeometry(x, y, windowWidth, windowHeight)
         self.set_notification_background(self.notificationWindow, QColor('#427126'))
         self.notificationWindow.show()
 
@@ -177,6 +191,6 @@ class SoundPlayer(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    player = SoundPlayer()
+    player = PomodoroWindow()
     player.show()
     sys.exit(app.exec_())
