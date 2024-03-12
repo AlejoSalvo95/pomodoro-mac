@@ -91,35 +91,17 @@ class PomodoroWindow(QWidget):
         self.long = True
         self.pomodoro()
 
-
     def pomodoro(self):
         if self.pomodoroWindow is not None:
             self.pomodoroWindow.close()
 
         self.phase = 1
-
-        if self.long == True:
-            duration = 900000
-        else:
-            duration = 5000
-        self.remainingTime = duration // 1000
-        self.pomodoroWindow = QWidget()
-        self.pomodoroWindow.setWindowTitle('Pomodoro')
-        self.pomodoroWindow.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        duration = self.set_main_window()
 
         layout = QVBoxLayout()
         self.set_title(layout)
         self.set_label(layout)
-
-        self.plusButton = QPushButton('+', self.pomodoroWindow)
-        self.plusButton.clicked.connect(self.increase_timer)
-        self.plusButton.setFixedWidth(40)  # Set the width to 80 pixels, for example
-        layout.addWidget(self.plusButton)
-
-        self.minusButton = QPushButton('-', self.pomodoroWindow)
-        self.minusButton.clicked.connect(self.decrease_timer)
-        self.minusButton.setFixedWidth(40)  # Set the width to 80 pixels, for example
-        layout.addWidget(self.minusButton)
+        self.set_plus_minus(layout)
 
         self.pomodoroWindow.setLayout(layout)
 
@@ -134,6 +116,28 @@ class PomodoroWindow(QWidget):
 
         self.countdownTimer.start(1000)
         QTimer.singleShot(duration, self.close_first_phase)
+
+    def set_main_window(self):
+        if self.long == True:
+            duration = 900000
+        else:
+            duration = 5000
+        self.remainingTime = duration // 1000
+        self.pomodoroWindow = QWidget()
+        self.pomodoroWindow.setWindowTitle('Pomodoro')
+        self.pomodoroWindow.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        return duration
+
+    def set_plus_minus(self, layout):
+        self.plusButton = QPushButton('+', self.pomodoroWindow)
+        self.plusButton.clicked.connect(self.increase_timer)
+        self.plusButton.setFixedWidth(40)
+        layout.addWidget(self.plusButton)
+
+        self.minusButton = QPushButton('-', self.pomodoroWindow)
+        self.minusButton.clicked.connect(self.decrease_timer)
+        self.minusButton.setFixedWidth(40)
+        layout.addWidget(self.minusButton)
 
     def start_second_phase(self):
         if self.phase == 1:
