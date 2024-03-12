@@ -9,7 +9,7 @@ class PomodoroWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
-        self.notificationWindow = None
+        self.pomodoroWindow = None
         self.countdownTimer = QTimer(self)
         self.countdownTimer.timeout.connect(self.update_countdown)
         self.phase = 1
@@ -34,6 +34,17 @@ class PomodoroWindow(QWidget):
 
         self.setLayout(layout)
 
+    def increase_timer(self):
+        self.remainingTime += 60
+        if self.pomodoroWindow:
+            self.label.setText(self.label_format())
+
+    def decrease_timer(self):
+        if self.remainingTime > 60:
+            self.remainingTime -= 60
+            if self.pomodoroWindow:
+                self.label.setText(self.label_format())
+
     def close_first_phase(self):
         self.stop_countdown()
         self.soundManager.play_sound_break()
@@ -52,14 +63,13 @@ class PomodoroWindow(QWidget):
     def close_fourth_phase(self):
         self.stop_countdown()
         self.soundManager.play_sound_close()
-        self.notificationWindow.close()
+        self.pomodoroWindow.close()
 
     def stop_countdown(self):
         self.countdownTimer.stop()
 
-
     def set_title(self, layout):
-        self.title = QLabel(f"Work", self.notificationWindow)
+        self.title = QLabel(f"Work", self.pomodoroWindow)
         self.title.setFont(QFont('Arial', 22))
         self.title.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.title)
@@ -69,7 +79,7 @@ class PomodoroWindow(QWidget):
         return f"{mins:02d}:{secs:02d}"
 
     def set_label(self, layout):
-        self.label = QLabel(self.label_format(), self.notificationWindow)
+        self.label = QLabel(self.label_format(), self.pomodoroWindow)
         self.label.setFont(QFont('Arial', 18))
         self.label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label)
@@ -83,8 +93,8 @@ class PomodoroWindow(QWidget):
 
 
     def pomodoro(self):
-        if self.notificationWindow is not None:
-            self.notificationWindow.close()
+        if self.pomodoroWindow is not None:
+            self.pomodoroWindow.close()
 
         self.phase = 1
 
@@ -93,23 +103,34 @@ class PomodoroWindow(QWidget):
         else:
             duration = 5000
         self.remainingTime = duration // 1000
-        self.notificationWindow = QWidget()
-        self.notificationWindow.setWindowTitle('Pomodoro')
-        self.notificationWindow.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.pomodoroWindow = QWidget()
+        self.pomodoroWindow.setWindowTitle('Pomodoro')
+        self.pomodoroWindow.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
         layout = QVBoxLayout()
         self.set_title(layout)
         self.set_label(layout)
-        self.notificationWindow.setLayout(layout)
+
+        self.plusButton = QPushButton('+', self.pomodoroWindow)
+        self.plusButton.clicked.connect(self.increase_timer)
+        self.plusButton.setFixedWidth(40)  # Set the width to 80 pixels, for example
+        layout.addWidget(self.plusButton)
+
+        self.minusButton = QPushButton('-', self.pomodoroWindow)
+        self.minusButton.clicked.connect(self.decrease_timer)
+        self.minusButton.setFixedWidth(40)  # Set the width to 80 pixels, for example
+        layout.addWidget(self.minusButton)
+
+        self.pomodoroWindow.setLayout(layout)
 
         windowHeight = 150
         windowWidth = 250
         x = 50
         y = get_window_height() - windowHeight - 50
 
-        self.notificationWindow.setGeometry(x, y, windowWidth, windowHeight)
-        self.set_notification_background(self.notificationWindow, QColor('#427126'))
-        self.notificationWindow.show()
+        self.pomodoroWindow.setGeometry(x, y, windowWidth, windowHeight)
+        self.set_notification_background(self.pomodoroWindow, QColor('#427126'))
+        self.pomodoroWindow.show()
 
         self.countdownTimer.start(1000)
         QTimer.singleShot(duration, self.close_first_phase)
@@ -122,7 +143,7 @@ class PomodoroWindow(QWidget):
             else:
                 duration = 3000
             self.remainingTime = duration // 1000
-            self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
+            self.set_notification_background(self.pomodoroWindow, QColor('#5B9899'))
             self.label.setText(self.label_format())
             self.title.setText("Relax")
             self.countdownTimer.start(1000)
@@ -137,7 +158,7 @@ class PomodoroWindow(QWidget):
             else:
                 duration = 5000
             self.remainingTime = duration // 1000
-            self.set_notification_background(self.notificationWindow, QColor('#5D923E'))
+            self.set_notification_background(self.pomodoroWindow, QColor('#5D923E'))
             self.label.setText(self.label_format())
             self.title.setText("Work")
             self.countdownTimer.start(1000)
@@ -152,7 +173,7 @@ class PomodoroWindow(QWidget):
             else:
                 duration = 3000
             self.remainingTime = duration // 1000
-            self.set_notification_background(self.notificationWindow, QColor('#5B9899'))
+            self.set_notification_background(self.pomodoroWindow, QColor('#5B9899'))
             self.label.setText(self.label_format())
             self.title.setText("Relax")
             self.countdownTimer.start(1000)
