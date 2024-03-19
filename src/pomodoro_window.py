@@ -45,29 +45,6 @@ class PomodoroWindow(QWidget):
             if self.pomodoroWindow:
                 self.label.setText(self.label_format())
 
-    def close_first_phase(self):
-        self.stop_countdown()
-        self.soundManager.play_sound_break()
-        self.start_second_phase()
-
-    def close_second_phase(self):
-        self.stop_countdown()
-        self.soundManager.play_sound_work()
-        self.start_third_phase()
-
-    def close_third_phase(self):
-        self.stop_countdown()
-        self.soundManager.play_sound_break()
-        self.start_fourth_phase()
-
-    def close_fourth_phase(self):
-        self.stop_countdown()
-        self.soundManager.play_sound_close()
-        self.pomodoroWindow.close()
-
-    def stop_countdown(self):
-        self.countdownTimer.stop()
-
     def set_title(self, layout):
         self.title = QLabel(f"Work", self.pomodoroWindow)
         self.title.setFont(QFont('Arial', 22))
@@ -115,7 +92,6 @@ class PomodoroWindow(QWidget):
         self.pomodoroWindow.show()
 
         self.countdownTimer.start(1000)
-        QTimer.singleShot(duration, self.close_first_phase)
 
     def set_main_window(self):
         if self.long == True:
@@ -140,8 +116,6 @@ class PomodoroWindow(QWidget):
         layout.addWidget(self.minusButton)
 
     def start_second_phase(self):
-        if self.phase == 1:
-            self.phase = 2
             if self.long == True:
                 duration = 300000 
             else:
@@ -150,13 +124,8 @@ class PomodoroWindow(QWidget):
             self.set_notification_background(self.pomodoroWindow, QColor('#5B9899'))
             self.label.setText(self.label_format())
             self.title.setText("Relax")
-            self.countdownTimer.start(1000)
-            QTimer.singleShot(duration, self.close_second_phase)
 
     def start_third_phase(self):
-        if self.phase == 2:
-            self.phase = 3
-
             if self.long == True:
                 duration = 900000
             else:
@@ -165,13 +134,8 @@ class PomodoroWindow(QWidget):
             self.set_notification_background(self.pomodoroWindow, QColor('#5D923E'))
             self.label.setText(self.label_format())
             self.title.setText("Work")
-            self.countdownTimer.start(1000)
-            QTimer.singleShot(duration, self.close_third_phase)
 
     def start_fourth_phase(self):
-        if self.phase == 3:
-            self.phase = 4
-
             if self.long == True:
                 duration = 300000
             else:
@@ -180,8 +144,6 @@ class PomodoroWindow(QWidget):
             self.set_notification_background(self.pomodoroWindow, QColor('#5B9899'))
             self.label.setText(self.label_format())
             self.title.setText("Relax")
-            self.countdownTimer.start(1000)
-            QTimer.singleShot(duration, self.close_fourth_phase)
 
     def set_notification_background(self, window, color):
         palette = window.palette()
@@ -193,4 +155,34 @@ class PomodoroWindow(QWidget):
             self.remainingTime -= 1
             self.label.setText(self.label_format())
         else:
-            self.countdownTimer.stop()
+            self.next_phase()
+
+    def next_phase(self):
+        if self.phase == 1:
+            self.close_first_phase()
+        elif self.phase == 2:
+            self.close_second_phase()
+        elif self.phase == 3:
+            self.close_third_phase()
+        elif self.phase == 4:
+            self.close_fourth_phase()
+
+    def close_first_phase(self):
+        self.phase += 1
+        self.soundManager.play_sound_break()
+        self.start_second_phase()
+
+    def close_second_phase(self):
+        self.phase += 1
+        self.soundManager.play_sound_work()
+        self.start_third_phase()
+
+    def close_third_phase(self):
+        self.phase += 1
+        self.soundManager.play_sound_break()
+        self.start_fourth_phase()
+
+    def close_fourth_phase(self):
+        self.phase += 1
+        self.soundManager.play_sound_close()
+        self.pomodoroWindow.close()
