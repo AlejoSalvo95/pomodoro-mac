@@ -6,13 +6,19 @@ class SoundManager:
     def __init__(self):
         self.player = QMediaPlayer()
 
+    def set_volume(self, volume):
+        if 0 <= volume <= 100:
+            self.player.setVolume(volume)
+        else:
+            print("Volume must be between 0 and 100")
+
     def play_sound(self, sound_file_name):
         sound_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', sound_file_name))
         url = QUrl.fromLocalFile(sound_file_path)
         content = QMediaContent(url)
         self.player.setMedia(content)
         self.player.play()
-    
+
     def play_sound_break(self):
         self.play_sound('break.mp3')
 

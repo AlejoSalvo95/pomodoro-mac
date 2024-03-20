@@ -16,6 +16,7 @@ class PomodoroWindow(QWidget):
         self.remainingTime = 0
         self.long = False
         self.soundManager = SoundManager()
+        self.soundManager.set_volume(10)
 
     def initUI(self):
         self.setWindowTitle('Pomodoro Timer')
